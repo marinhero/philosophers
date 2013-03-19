@@ -15,6 +15,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <stdarg.h>
 
 typedef struct      s_phylosopher
 {
@@ -30,6 +31,8 @@ typedef struct      s_phylosopher
 
 pthread_mutex_t         g_chopsticks[7];
 t_phylosopher           g_dudes[7];
+
+pthread_mutex_t 	out_mutex;
 
 void    init_resources(void);
 void    wait_for(void);

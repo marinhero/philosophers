@@ -10,10 +10,39 @@
 
 #include "philosophers.h"
 
+int 	printf_thrds(FILE* f, const char *format, ...)
+{
+	va_list 	ap;
+	int 		size;
+
+	pthread_mutex_lock(&out_mutex);
+	va_start(ap, format);
+	size = vfprintf(f, format, ap);
+	va_end(ap);
+	pthread_mutex_unlock(&out_mutex);
+	return (size);
+}
+
+void 	philosopher_eating(int i)
+{
+
+}
+
+void 	philosopher_thinking(int i)
+{
+}
+
+void 	philosopher_relax(int i)
+{
+
+}
 
 void    *set_brain(void *index)
 {
+	int 	i;
 
+	i =* ((int*)index);
+	printf_thrds(stdout, "Philosopher %d : Came to table!\n", i);
     return (NULL);
 }
 
@@ -22,6 +51,7 @@ void        init_resources()
   int     i;
 
   i = 0;
+  pthread_mutex_init(&out_mutex, NULL);
   while (i < 7)
   {
     g_dudes[i].state = 'R';
