@@ -10,27 +10,47 @@
 
 #include "philosophers.h"
 
-void 	philosopher_eating(int i)
+int 	philosopher_eating(t_philosopher *p)
 {
-
+	fprintf(stdout, "Philosopher %d : I'm eating now!\n", p->i);
+	sleep(p->time_to_eat);
+	p->rice -= p->hunger;
+	if (p->rice <= 0)
+	{
+		fprintf(stdout, "Philosopher %d : I'm fulll\n", p->i);
+		return (0);
+	}
+	fprintf(stdout, "Philosopher %d : I'm finish eating %d rices (rest : %d rice)!\n", p->i, p->hunger, p->rice);
+	return (1);
 }
 
-void 	philosopher_thinking(int i)
+void 	philosopher_thinking(t_philosopher *p)
 {
+	fprintf(stdout, "Philosopher %d : I'm thinking now!\n", p->i);
+	sleep(p->time_to_think);
+	fprintf(stdout, "Philosopher %d : I'm finish thinking!\n", p->i);
 }
 
-void 	philosopher_relax(int i)
+void 	philosopher_relax(t_philosopher *p)
 {
-
+	fprintf(stdout, "Philosopher %d : I'm going to relax\n", p->i);
+	sleep(p->time_to_rest);
+	fprintf(stdout, "Philosopher %d : My energy is full!\n", p->i);
 }
 
-void    *set_brain(void *p)
+void    *set_brain(void *arg)
 {
-	t_philosopher 	*philo;
+	t_philosopher 	*p;
 
-	philo = (t_philosopher*)p;
-	fprintf(stdout, "Philosopher %d : Came to table!\n", philo->i);
-    return (NULL);
+	p = (t_philosopher*)arg;
+	fprintf(stdout, "Philosopher %d : Came to the table!\n", p->i);
+	while (philosopher_eating(p))
+	{
+		philosopher_relax(p);
+		philosopher_thinking(p);
+	}
+	fprintf(stdout, "Philosopher %d : Left the table!\n", p->i);
+	return (NULL);
 }
 
 void        init_resources()
@@ -41,10 +61,10 @@ void        init_resources()
   while (i < 7)
   {
     g_dudes[i].state = 'R';
-    g_dudes[i].time_to_think = rand() % 10;
-    g_dudes[i].time_to_eat = rand() % 10;
-    g_dudes[i].time_to_rest = rand() % 10;
-    g_dudes[i].hunger = rand() % 10;
+    g_dudes[i].time_to_think = rand() % 5;
+    g_dudes[i].time_to_eat = rand() % 5;
+    g_dudes[i].time_to_rest = rand() % 5;
+    g_dudes[i].hunger = rand() % 50;
     g_dudes[i].rice = 100;
     g_dudes[i].i = i;
     pthread_mutex_init(&g_chopsticks[i], NULL);
