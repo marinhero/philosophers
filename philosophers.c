@@ -15,11 +15,11 @@ int 	printf_thrds(FILE* f, const char *format, ...)
 	va_list 	ap;
 	int 		size;
 
-	pthread_mutex_lock(&out_mutex);
+	flockfile(f);
 	va_start(ap, format);
 	size = vfprintf(f, format, ap);
 	va_end(ap);
-	pthread_mutex_unlock(&out_mutex);
+	funlockfile(f);
 	return (size);
 }
 
@@ -37,12 +37,12 @@ void 	philosopher_relax(int i)
 
 }
 
-void    *set_brain(void *index)
+void    *set_brain(void *p)
 {
-	int 	i;
+	t_philosopher 	*philo;
 
-	i =* ((int*)index);
-	printf_thrds(stdout, "Philosopher %d : Came to table!\n", i);
+	philo = (t_philosopher*)p;
+	printf_thrds(stdout, "Philosopher %d : Came to table!\n", philo->i);
     return (NULL);
 }
 
@@ -51,7 +51,6 @@ void        init_resources()
   int     i;
 
   i = 0;
-  pthread_mutex_init(&out_mutex, NULL);
   while (i < 7)
   {
     g_dudes[i].state = 'R';
@@ -60,8 +59,9 @@ void        init_resources()
     g_dudes[i].time_to_rest = rand() % 10;
     g_dudes[i].hunger = rand() % 10;
     g_dudes[i].rice = 100;
+    g_dudes[i].i = i;
     pthread_mutex_init(&g_chopsticks[i], NULL);
-    pthread_create(&(g_dudes[i].handler), NULL, set_brain, &i);
+    pthread_create(&(g_dudes[i].handler), NULL, set_brain, &g_dudes[i]);
     i = i + 1;
   }
 }

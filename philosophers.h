@@ -17,8 +17,9 @@
 #include <unistd.h>
 #include <stdarg.h>
 
-typedef struct      s_phylosopher
+typedef struct      s_philosopher
 {
+    int 	    i;
     pthread_t       handler;
     char            state;
     int             time_to_think;
@@ -27,12 +28,10 @@ typedef struct      s_phylosopher
     char            *name;
     int             rice;
     int             hunger;
-}                   t_phylosopher;
+}                   t_philosopher;
 
 pthread_mutex_t         g_chopsticks[7];
-t_phylosopher           g_dudes[7];
-
-pthread_mutex_t 	out_mutex;
+t_philosopher           g_dudes[7];
 
 void    init_resources(void);
 void    wait_for(void);
