@@ -10,19 +10,6 @@
 
 #include "philosophers.h"
 
-int 	printf_thrds(FILE* f, const char *format, ...)
-{
-	va_list 	ap;
-	int 		size;
-
-	flockfile(f);
-	va_start(ap, format);
-	size = vfprintf(f, format, ap);
-	va_end(ap);
-	funlockfile(f);
-	return (size);
-}
-
 void 	philosopher_eating(int i)
 {
 
@@ -42,7 +29,7 @@ void    *set_brain(void *p)
 	t_philosopher 	*philo;
 
 	philo = (t_philosopher*)p;
-	printf_thrds(stdout, "Philosopher %d : Came to table!\n", philo->i);
+	fprintf(stdout, "Philosopher %d : Came to table!\n", philo->i);
     return (NULL);
 }
 
