@@ -24,15 +24,16 @@ void 	philosopher_eating(t_philosopher *p)
 	
 }
 
-void 	philosopher_thinking(t_philosopher *p, pthread_mutex_t *m)
+void 	philosopher_thinking(t_philosopher *p, pthread_mutex_t *m, pthread_mutex_t *w)
 {
-	if (p->state = 'T')
+	if (p->state == 'T')
 		return ;
 	p->state = 'T';
 	fprintf(stdout, "Philosopher %d : I'm thinking now!\n", p->i);
 	sleep(p->time_to_think);
 	fprintf(stdout, "Philosopher %d : I'm finish thinking!\n", p->i);
-	pthread_mutex_unlock(m);
+	while (pthread_mutex_trylock(w) != 0);
+	philosopher_eating(p);
 }
 
 void 	philosopher_relax(t_philosopher *p)
@@ -60,9 +61,9 @@ void    *set_brain(void *arg)
 		if (left == 0 && right == 0)
 			philosopher_eating(p);
 		else if (left == 0)
-			philosopher_thinking(p, &g_chopsticks[p->i]);
+			philosopher_thinking(p, &g_chopsticks[p->i], &g_chopsticks[(p->i + 1) % 7]);
 		else if (right == 0)	
-			philosopher_thinking(p, &g_chopsticks[(p->i + 1) % 7]);
+			philosopher_thinking(p, &g_chopsticks[(p->i + 1) % 7], &g_chopsticks[p->i]);
 		else
 			philosopher_relax(p);
 	}
