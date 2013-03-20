@@ -5,7 +5,7 @@
 ** Login   <alcara_m@epitech.net>
 ** 
 ** Started on  Mon Mar 18 18:42:04 2013 Marin Alcaraz
-** Last update Mon Mar 18 23:20:22 2013 Marin Alcaraz
+** Last update Wed Mar 20 05:26:58 2013 Marin Alcaraz
 */
 
 #include "philosophers.h"
@@ -72,15 +72,17 @@ void    *set_brain(void *arg)
 
 void        init_resources()
 {
-  int     i;
+  int       i;
+  int       t;
 
   i = 0;
+  t = rand() % 5;
   while (i < 7)
   {
     g_dudes[i].state = 'R';
-    g_dudes[i].time_to_think = rand() % 5;
-    g_dudes[i].time_to_eat = rand() % 5;
-    g_dudes[i].time_to_rest = rand() % 5;
+    g_dudes[i].time_to_think = t;
+    g_dudes[i].time_to_eat = t / 2;
+    g_dudes[i].time_to_rest = 1;
     g_dudes[i].hunger = rand() % 50;
     g_dudes[i].rice = 100;
     g_dudes[i].i = i;
