@@ -5,7 +5,7 @@
 ** Login   <alcara_m@epitech.net>
 ** 
 ** Started on  Mon Mar 18 18:42:04 2013 Marin Alcaraz
-** Last update Wed Mar 20 05:26:58 2013 Marin Alcaraz
+** Last update Wed Mar 20 16:34:05 2013 Marin Alcaraz
 */
 
 #include "philosophers.h"
@@ -24,6 +24,17 @@ void 	philosopher_eating(t_philosopher *p)
 	g_chopsticks[p->i] = 0;
 	g_chopsticks[(p->i + 1) % 7] = 0;
 	pthread_mutex_unlock(&g_choose);
+}
+
+void    init_colors()
+{
+    g_dudes[0].color = "33";
+    g_dudes[1].color = "31";
+    g_dudes[2].color = "34";
+    g_dudes[3].color = "35";
+    g_dudes[4].color = "36";
+    g_dudes[5].color = "32";
+    g_dudes[6].color = "30";
 }
 
 void 	philosopher_thinking(t_philosopher *p)
@@ -66,6 +77,7 @@ void    *set_brain(void *arg)
 	fprintf(stdout, "Philosopher %d : Came to the table!\n", p->i);
 	while (p->rice > 0)
 	{
+      fprintf(stdout, "\e[1;%sm", p->color);
 		pthread_mutex_lock(&g_choose);
 		left  = g_chopsticks[p->i];
 		right  = g_chopsticks[(p->i + 1) % 7];
@@ -75,6 +87,7 @@ void    *set_brain(void *arg)
 			philosopher_thinking(p);
 		else
 			philosopher_relax(p);
+      fprintf(stdout, "\e[m", p->color);
 	}
 	fprintf(stdout, "Philosopher %d : Left the table!\n", p->i);
 	return (NULL);
@@ -85,6 +98,7 @@ void        init_resources()
   int       i;
 
   i = 0;
+  init_colors();
   while (i < 7)
   {
     g_dudes[i].state = 'R';
