@@ -10,29 +10,36 @@
 
 #include "philosophers.h"
 
-int 	philosopher_eating(t_philosopher *p)
+void 	philosopher_eating(t_philosopher *p)
 {
+	if (p->state == 'E')
+		return ;
+	p->state = 'E';
 	fprintf(stdout, "Philosopher %d : I'm eating now!\n", p->i);
 	sleep(p->time_to_eat);
 	p->rice -= p->hunger;
-	if (p->rice <= 0)
-	{
-		fprintf(stdout, "Philosopher %d : I'm fulll\n", p->i);
-		return (0);
-	}
 	fprintf(stdout, "Philosopher %d : I'm finish eating %d rices (rest : %d rice)!\n", p->i, p->hunger, p->rice);
-	return (1);
+	pthread_mutex_unlock(&g_chopsticks[p->i]);
+	pthread_mutex_unlock(&g_chopsticks[(p->i + 1) % 7]);
+	
 }
 
-void 	philosopher_thinking(t_philosopher *p)
+void 	philosopher_thinking(t_philosopher *p, pthread_mutex_t *m)
 {
+	if (p->state = 'T')
+		return ;
+	p->state = 'T';
 	fprintf(stdout, "Philosopher %d : I'm thinking now!\n", p->i);
 	sleep(p->time_to_think);
 	fprintf(stdout, "Philosopher %d : I'm finish thinking!\n", p->i);
+	pthread_mutex_unlock(m);
 }
 
 void 	philosopher_relax(t_philosopher *p)
 {
+	if (p->state == 'R')
+		return ;
+	p->state = 'R';
 	fprintf(stdout, "Philosopher %d : I'm going to relax\n", p->i);
 	sleep(p->time_to_rest);
 	fprintf(stdout, "Philosopher %d : My energy is full!\n", p->i);
@@ -41,13 +48,23 @@ void 	philosopher_relax(t_philosopher *p)
 void    *set_brain(void *arg)
 {
 	t_philosopher 	*p;
+	int 		left;
+	int 		right;
 
 	p = (t_philosopher*)arg;
 	fprintf(stdout, "Philosopher %d : Came to the table!\n", p->i);
-	while (philosopher_eating(p))
+	while (p->rice > 0)
 	{
-		philosopher_relax(p);
-		philosopher_thinking(p);
+		left = pthread_mutex_trylock(&g_chopsticks[(p->i)]);
+		right = pthread_mutex_trylock(&g_chopsticks[(p->i + 1) % 7]);
+		if (left == 0 && right == 0)
+			philosopher_eating(p);
+		else if (left == 0)
+			philosopher_thinking(p, &g_chopsticks[p->i]);
+		else if (right == 0)	
+			philosopher_thinking(p, &g_chopsticks[(p->i + 1) % 7]);
+		else
+			philosopher_relax(p);
 	}
 	fprintf(stdout, "Philosopher %d : Left the table!\n", p->i);
 	return (NULL);
