@@ -16,12 +16,12 @@ void 	philosopher_eating(t_philosopher *p)
 	g_chopsticks[p->i] = 1;
 	g_chopsticks[(p->i + 1) % 7] = 1;
 	pthread_mutex_unlock(&g_choose);
-	fprintf(stdout, "Philosopher %d : I'm eating now!\n", p->i);
+	fprintf(stdout, "\e[1;%smPhilosopher %d : I'm eating now!\e[m\n", p->color, p->i);
 	sleep(p->time_to_eat);
 	p->rice -= p->hunger;
 	if (p->rice < 0)
 		p->rice = 0;
-	fprintf(stdout, "Philosopher %d : I've finished eating %d rices (rest : %d rice)!\n", p->i, p->hunger, p->rice);
+	fprintf(stdout, "\e[1;%smPhilosopher %d : I've finished eating %d rices (rest : %d rice)!\e[m\n", p->color,  p->i, p->hunger, p->rice);
 	pthread_mutex_lock(&g_choose);
 	g_chopsticks[p->i] = 0;
 	g_chopsticks[(p->i + 1) % 7] = 0;
@@ -44,9 +44,9 @@ void 	philosopher_thinking(t_philosopher *p)
 	p->state = 'T';
 	g_chopsticks[p->i] = 1;
 	pthread_mutex_unlock(&g_choose);
-	fprintf(stdout, "Philosopher %d : I'm thinking now!\n", p->i);
+	fprintf(stdout, "\e[1;%smPhilosopher %d : I'm thinking now!\e[m\n", p->color,  p->i);
 	sleep(p->time_to_think);
-	fprintf(stdout, "Philosopher %d : I've finished thinking!\n", p->i);
+	fprintf(stdout, "\e[1;%smPhilosopher %d : I've finished thinking!\e[m\n", p->color,  p->i);
 	while (p->state != 'E')
 	{
 		pthread_mutex_lock(&g_choose);
@@ -63,9 +63,9 @@ void 	philosopher_relax(t_philosopher *p)
 	if (p->state == 'R')
 		return ;
 	p->state = 'R';
-	fprintf(stdout, "Philosopher %d : I'm going to relax\n", p->i);
+	fprintf(stdout, "\e[1;%smPhilosopher %d : I'm going to relax\e[m\n", p->color,  p->i);
 	sleep(p->time_to_rest);
-	fprintf(stdout, "Philosopher %d : My energy is full!\n", p->i);
+	fprintf(stdout, "\e[1;%smPhilosopher %d : My energy is full!\e[m\n", p->color,  p->i);
 }
 
 void    *set_brain(void *arg)
@@ -76,10 +76,10 @@ void    *set_brain(void *arg)
 	char 		st;
 
 	p = (t_philosopher*)arg;
-	fprintf(stdout, "Philosopher %d : Came to the table!\n", p->i);
+
+	fprintf(stdout, "\e[1;%smPhilosopher %d : Came to the table!\e[m\n",p->color, p->i);
 	while (p->rice > 0)
 	{
-      fprintf(stdout, "\e[1;%sm", p->color);
 		pthread_mutex_lock(&g_choose);
 		left  = g_chopsticks[p->i];
 		right  = g_chopsticks[(p->i + 1) % 7];
@@ -89,9 +89,8 @@ void    *set_brain(void *arg)
 			philosopher_thinking(p);
 		else
 			philosopher_relax(p);
-      fprintf(stdout, "\e[m", p->color);
 	}
-	fprintf(stdout, "Philosopher %d : Left the table!\n", p->i);
+	fprintf(stdout, "\e[1;%smPhilosopher %d : Left the table!\e[m\n", p->color, p->i);
 	return (NULL);
 }
 
