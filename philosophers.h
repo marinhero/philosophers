@@ -29,8 +29,9 @@ typedef struct      s_philosopher
     int             hunger;
 }                   t_philosopher;
 
-pthread_mutex_t         g_chopsticks[7];
+int       	 	g_chopsticks[7];
 t_philosopher           g_dudes[7];
+pthread_mutex_t 	g_choose = PTHREAD_MUTEX_INITIALIZER;
 
 void    init_resources(void);
 void    wait_for(void);

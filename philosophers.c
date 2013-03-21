@@ -12,32 +12,41 @@
 
 void 	philosopher_eating(t_philosopher *p)
 {
-	if (p->state == 'E')
-		return ;
 	p->state = 'E';
+	g_chopsticks[p->i] = 1;
+	g_chopsticks[(p->i + 1) % 7] = 1;
+	pthread_mutex_unlock(&g_choose);
 	fprintf(stdout, "Philosopher %d : I'm eating now!\n", p->i);
 	sleep(p->time_to_eat);
 	p->rice -= p->hunger;
-	fprintf(stdout, "Philosopher %d : I'm finish eating %d rices (rest : %d rice)!\n", p->i, p->hunger, p->rice);
-	pthread_mutex_unlock(&g_chopsticks[p->i]);
-	pthread_mutex_unlock(&g_chopsticks[(p->i + 1) % 7]);
-	
+	fprintf(stdout, "Philosopher %d : I've finished eating %d rices (rest : %d rice)!\n", p->i, p->hunger, p->rice);
+	pthread_mutex_lock(&g_choose);
+	g_chopsticks[p->i] = 0;
+	g_chopsticks[(p->i + 1) % 7] = 0;
+	pthread_mutex_unlock(&g_choose);
 }
 
-void 	philosopher_thinking(t_philosopher *p, pthread_mutex_t *m, pthread_mutex_t *w)
+void 	philosopher_thinking(t_philosopher *p)
 {
-	if (p->state == 'T')
-		return ;
 	p->state = 'T';
+	g_chopsticks[p->i] = 1;
+	pthread_mutex_unlock(&g_choose);
 	fprintf(stdout, "Philosopher %d : I'm thinking now!\n", p->i);
 	sleep(p->time_to_think);
-	fprintf(stdout, "Philosopher %d : I'm finish thinking!\n", p->i);
-	while (pthread_mutex_trylock(w) != 0);
-	philosopher_eating(p);
+	fprintf(stdout, "Philosopher %d : I've finished thinking!\n", p->i);
+	while (p->state != 'E')
+	{
+		pthread_mutex_lock(&g_choose);
+		if (g_chopsticks[(p->i + 1) % 7] == 0)
+			philosopher_eating(p);
+		else
+			pthread_mutex_unlock(&g_choose);
+	}
 }
 
 void 	philosopher_relax(t_philosopher *p)
 {
+	pthread_mutex_unlock(&g_choose);
 	if (p->state == 'R')
 		return ;
 	p->state = 'R';
@@ -51,19 +60,19 @@ void    *set_brain(void *arg)
 	t_philosopher 	*p;
 	int 		left;
 	int 		right;
+	char 		st;
 
 	p = (t_philosopher*)arg;
 	fprintf(stdout, "Philosopher %d : Came to the table!\n", p->i);
 	while (p->rice > 0)
 	{
-		left = pthread_mutex_trylock(&g_chopsticks[(p->i)]);
-		right = pthread_mutex_trylock(&g_chopsticks[(p->i + 1) % 7]);
-		if (left == 0 && right == 0)
+		pthread_mutex_lock(&g_choose);
+		left  = g_chopsticks[p->i];
+		right  = g_chopsticks[(p->i + 1) % 7];
+		if (left == 0 && right == 0 && p->state != 'E')
 			philosopher_eating(p);
-		else if (left == 0)
-			philosopher_thinking(p, &g_chopsticks[p->i], &g_chopsticks[(p->i + 1) % 7]);
-		else if (right == 0)	
-			philosopher_thinking(p, &g_chopsticks[(p->i + 1) % 7], &g_chopsticks[p->i]);
+		else if (left == 0 && p->state != 'T' && p->state != 'E')
+			philosopher_thinking(p);
 		else
 			philosopher_relax(p);
 	}
@@ -74,20 +83,18 @@ void    *set_brain(void *arg)
 void        init_resources()
 {
   int       i;
-  int       t;
 
   i = 0;
-  t = rand() % 5;
   while (i < 7)
   {
     g_dudes[i].state = 'R';
-    g_dudes[i].time_to_think = t;
-    g_dudes[i].time_to_eat = t / 2;
+    g_dudes[i].time_to_think = 1;
+    g_dudes[i].time_to_eat = 1;
     g_dudes[i].time_to_rest = 1;
     g_dudes[i].hunger = rand() % 50;
     g_dudes[i].rice = 100;
     g_dudes[i].i = i;
-    pthread_mutex_init(&g_chopsticks[i], NULL);
+    g_chopsticks[i] = 0;
     pthread_create(&(g_dudes[i].handler), NULL, set_brain, &g_dudes[i]);
     i = i + 1;
   }
