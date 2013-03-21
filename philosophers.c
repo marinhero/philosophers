@@ -19,6 +19,8 @@ void 	philosopher_eating(t_philosopher *p)
 	fprintf(stdout, "Philosopher %d : I'm eating now!\n", p->i);
 	sleep(p->time_to_eat);
 	p->rice -= p->hunger;
+	if (p->rice < 0)
+		p->rice = 0;
 	fprintf(stdout, "Philosopher %d : I've finished eating %d rices (rest : %d rice)!\n", p->i, p->hunger, p->rice);
 	pthread_mutex_lock(&g_choose);
 	g_chopsticks[p->i] = 0;
@@ -88,9 +90,9 @@ void        init_resources()
   while (i < 7)
   {
     g_dudes[i].state = 'R';
-    g_dudes[i].time_to_think = 1;
-    g_dudes[i].time_to_eat = 1;
-    g_dudes[i].time_to_rest = 1;
+    g_dudes[i].time_to_think = rand() % 5;
+    g_dudes[i].time_to_eat = rand() % 5;
+    g_dudes[i].time_to_rest = rand() % 5;
     g_dudes[i].hunger = rand() % 50;
     g_dudes[i].rice = 100;
     g_dudes[i].i = i;
