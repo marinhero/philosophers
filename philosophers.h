@@ -5,7 +5,7 @@
 ** Login   <alcara_m@epitech.net>
 ** 
 ** Started on  Mon Mar 18 18:48:33 2013 Marin Alcaraz
-** Last update Wed Mar 20 05:22:31 2013 Marin Alcaraz
+** Last update Wed Mar 20 16:20:39 2013 Marin Alcaraz
 */
 
 #ifndef PHILOSHOPERS_H_
@@ -27,6 +27,7 @@ typedef struct      s_philosopher
     char            *name;
     int             rice;
     int             hunger;
+    char            *color;
 }                   t_philosopher;
 
 int       	 	g_chopsticks[7];
