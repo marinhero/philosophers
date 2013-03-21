@@ -13,6 +13,7 @@
 
 #include <pthread.h>
 #include <stdio.h>
+#include <time.h>
 #include <stdlib.h>
 #include <unistd.h>
 
@@ -28,6 +29,8 @@ typedef struct      s_philosopher
     int             rice;
     int             hunger;
     char            *color;
+    char 	    states[512];
+    int 	    st_i;
 }                   t_philosopher;
 
 int       	 	g_chopsticks[7];
